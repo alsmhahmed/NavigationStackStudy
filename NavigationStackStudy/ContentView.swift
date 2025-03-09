@@ -17,11 +17,11 @@ struct ContentView: View {
     var games: [Game] = [ .init(name: "Minecraft", rating: "99") ,
                           .init(name: "God of War", rating: "98") ,
                           .init(name: "fortnite", rating: "95"),
-                          .init(name: "PES", rating: "100")
-                          
-    ]
+                          .init(name: "PES", rating: "100")]
+    
+    @State private var path = NavigationPath()
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $path) {
             List{
                 Section("Platforms") {
                     ForEach(platforms, id: \.name) { platform in
@@ -43,13 +43,37 @@ struct ContentView: View {
             .navigationDestination(for: Platform.self) { platform in
                 ZStack {
                     platform.color.ignoresSafeArea()
-                    Label(platform.name, systemImage: platform.imageName)
-                        .font(.largeTitle).bold()
+                    VStack {
+                        Label(platform.name, systemImage: platform.imageName)
+                            .font(.largeTitle).bold()
+                        
+                        List {
+                            ForEach(games, id: \.name) { game in
+                                NavigationLink(value: game) {
+                                    Text(game.name)
+                                }
+                            }
+                        }
+                    }
                 }
             }
             .navigationDestination(for: Game.self) { game in
-                Text("\(game.name) - \(game.rating)")
-                    .font(.largeTitle.bold())
+                VStack(spacing: 20) {
+                    Text("\(game.name) - \(game.rating)")
+                        .font(.largeTitle.bold())
+                    
+                    Button("Recommend game") {
+                        path.append(games.randomElement()!)
+                    }
+                    
+                    Button("Go to another platform") {
+                        path.append(games.randomElement()!)
+                    }
+                    
+                    Button("Go to Home") {
+                        path.removeLast(path.count)
+                    }
+                }
             }
         }
     }
